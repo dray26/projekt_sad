@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:service xmlns:tns="http://www.example.org/StreamingService/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.example.org/StreamingService/ ServiceUtils/StreamingService.xsd ">
+  <address>127.0.0.1:13012</address>
+  <inputs>
+  	<input>
+  		<id>1</id>
+  		<formats>
+  			<format>
+  				<name>value_dict</name>
+  				<latency>5</latency>
+  			</format>
+  		</formats>
+  	</input></inputs>
+  <outputs>
+  	<output>
+  		<id>2</id>
+  		<formats>
+  			<format>
+  				<name>value_dict</name>
+  				<latency>5</latency>
+  			</format>
+  		</formats>
+  	</output>
+  	</outputs>
+  <cost>2.0</cost>
+  <latency>1.5</latency>
+  <maxInstCount>1000</maxInstCount>
+  <serviceGlobalId>127.0.0.1:13012</serviceGlobalId>
+  <classes>
+    <class>value_multiplier</class>
+  </classes>
+  <parameters>
+    <param>value_to_multiply</param>
+    <param>multiply_by</param>
+  </parameters>
+</tns:service>

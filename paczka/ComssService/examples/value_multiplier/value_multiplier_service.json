@@ -1,0 +1,16 @@
+{
+"inputs": 
+            {
+            "1": "127.0.0.1:5556"
+            },
+"outputs": 
+            {
+            "2": "127.0.0.1:5557"
+            },
+"parameters":
+            {
+            "value_to_multiply": "a",
+            "multiply_by": 2
+            },
+"dev_communication_address": "127.0.0.1:1111"
+}
