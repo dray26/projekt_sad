@@ -1,6 +1,0 @@
-*.pyc
-.project
-.pydevproject
-.settings/
-ComssService.egg-info/
-
