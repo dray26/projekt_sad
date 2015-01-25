@@ -10,7 +10,7 @@ class MySQLModel(pw.Model):
         database = myDB
 
 class Rss(MySQLModel):
-   # idrssFeed = pw.IntegerField(primary_key=True)
+   idrssFeed = pw.IntegerField(primary_key=True)
    name = pw.CharField()
    link = pw.CharField()
 
@@ -20,17 +20,11 @@ class Cities(MySQLModel):
     name = pw.CharField()
 
 
-class Judgment_Data(MySQLModel):
-    # idjudgment_data = pw.IntegerField(primary_key=True)
-    name = pw.CharField()
-    address = pw.CharField()
-    faculty = pw.CharField()
-
 
 class MetaData(MySQLModel):
-    # idmetadata = pw.IntegerField(primary_key=True)
+    idmetadata = pw.IntegerField(primary_key=True)
     links = pw.CharField()
-    dateCreate = pw.CharField()
+    date = pw.CharField()
     rss = pw.ForeignKeyField(Rss)
 
 
@@ -45,14 +39,8 @@ class Judgment(MySQLModel):
     judges = pw.CharField()
     recorder = pw.CharField()
     legal_basis = pw.CharField()
-    judgmentdata = pw.ForeignKeyField(Judgment_Data)
     metadata = pw.ForeignKeyField(MetaData)
     cities = pw.ForeignKeyField(Cities)
-
-class Statistic(MySQLModel):
-    # idstatistic = pw.IntegerField(primary_key=True)
-    prices = pw.IntegerField()
-    judgmentdata = pw.ForeignKeyField(Judgment)
 
 class Key(MySQLModel):
     # idkey = pw.IntegerField(primary_key=True)
