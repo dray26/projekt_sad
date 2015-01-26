@@ -13,7 +13,9 @@ from models import Judgment
 from models import Rss
 from models import MetaData
 from models import Key
-
+from color import bcolors
+import time
+import sys
 detail = []
 metric = {}
 links = []
@@ -25,7 +27,9 @@ dataDate = []
 dataPrice = []
 
 
+
 def getContentDataFromUrl(url):
+    print bcolors.UNDERLINE + 'TRWA: Pobieranie słów kluczowych z treści' + bcolors.ENDC
     link = url.replace('details', 'content')
 
     content = urllib2.urlopen(link).read()
@@ -41,6 +45,7 @@ def getContentDataFromUrl(url):
     #     dataPrice.append(price)
 
 def getMetricDataFromLink(url):
+    print bcolors.UNDERLINE + 'TRWA: Pobieranie danych z metryki' + bcolors.ENDC
     content = urllib2.urlopen(url).read()
     soup = BeautifulSoup(content)
     dd = soup.find_all('dd')
@@ -54,11 +59,13 @@ def getMetricDataFromLink(url):
     return resultMetric
 
 def getAllLinksFromRss(rss):
+    print bcolors.UNDERLINE + 'TRWA: Pobieranie linków z kanału RSS' + bcolors.ENDC
     feed = feedparser.parse(rss)
     for key in feed["items"]:
         links.append(key['link'])
 
 def checkExistLinkInDatabase():
+    print bcolors.UNDERLINE + 'TRWA: Sprawdzanie czy linki znajdują się już w bazie' + bcolors.ENDC
     for key in links:
         exist = MetaData.select().where(MetaData.links == key)
         if not exist.exists():
@@ -66,18 +73,15 @@ def checkExistLinkInDatabase():
 
 
 
-rss = 'http://orzeczenia.piotrkow-tryb.so.gov.pl/rsscontent/15200000'
+rss = 'http://orzeczenia.piotrkow-tryb.so.gov.pl/rsscontent/15500000'
 
 getAllLinksFromRss(rss);
 checkExistLinkInDatabase()
 url = 'http://orzeczenia.krakow.sa.gov.pl/details/Odszkodowanie/152000000000503_I_ACa_000592_2013_Uz_2014-04-17_001'
 
-# pprint.pprint(dataDate)
-# pprint.pprint(dataArt)
-# pprint.pprint(linksNew)
-# print linksNew
-# i = 0
-if len(linksNew):
+pprint.pprint(linksNew)
+
+if linksNew:
     for linkurl in linksNew:
 
         url = linkurl
@@ -88,8 +92,6 @@ if len(linksNew):
         artDup = list(set(dataArt))
         dateDup = list(set(dataDate))
 
-        # for a in artDup:
-        #     print a
         rssId =  Rss.select().where(Rss.link == rss).get()
 
         metric = getMetricDataFromLink(url)
@@ -131,9 +133,8 @@ if len(linksNew):
 
             metadata = MetaData.create(
                 links = url,
-                rss = rssId
+                rss = rssId.idrssFeed
             )
-
             judgmentResult = Judgment.create(
                 title = title,
                 date_of_judgment = date_of_judgment,
@@ -146,7 +147,7 @@ if len(linksNew):
                 recorder = recorder,
                 legal_basis = legal_basis,
                 metadata = metadata,
-                cities = 3
+                cities = rssId.idrssFeed
             )
 
 
@@ -162,11 +163,11 @@ if len(linksNew):
                     value = tmpDate,
                     judgment = judgmentResult,
                 )
-            print 'Wykonało się'
+            print bcolors.OKGREEN + 'Dane z linku:',linkurl, ' zostały poprawnie dodane' + bcolors.ENDC
         except:
             raise
 else:
-    print 'Brak linków lub wszystkie linki zostały dodane'
+    print bcolors.OKBLUE + 'Brak linków lub wszystkie linki zostały dodane' + bcolors.ENDC
 
 # print metric
 # getAllLinksFromRss(url)

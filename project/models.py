@@ -9,10 +9,6 @@ class MySQLModel(pw.Model):
     class Meta:
         database = myDB
 
-class Rss(MySQLModel):
-   idrssFeed = pw.IntegerField(primary_key=True)
-   name = pw.CharField()
-   link = pw.CharField()
 
 
 class Cities(MySQLModel):
@@ -20,6 +16,11 @@ class Cities(MySQLModel):
     name = pw.CharField()
 
 
+class Rss(MySQLModel):
+   idrssFeed = pw.IntegerField(primary_key=True)
+   name = pw.CharField()
+   link = pw.CharField()
+   cities = pw.ForeignKeyField(Cities)
 
 class MetaData(MySQLModel):
     # idmetadata = pw.IntegerField(primary_key=True)
