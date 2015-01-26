@@ -20,7 +20,9 @@ links = []
 linksNew = []
 ddarr = []
 dtarr = []
-art = []
+dataArt = []
+dataDate = []
+dataPrice = []
 
 
 def getContentDataFromUrl(url):
@@ -28,11 +30,15 @@ def getContentDataFromUrl(url):
 
     content = urllib2.urlopen(link).read()
     soup = BeautifulSoup(content)
-    for soup in soup.find_all(text=re.compile("^art.")):
-        art.append(soup)
+    soup2 = BeautifulSoup(content)
+    for soup in soup.find_all(text=re.compile("^(art.) ([0-9]{1,4})")):
+        dataArt.append(soup)
 
-    # for soup in soup.find_all(text=re.compile("^[0-9]{1,2}(\.)[0-9]{3}(\,)[0-9]{2}")):
-    #     print(soup)
+    for date in soup2.find_all(text=re.compile("^([0-9]{1,2} [a-z]* [0-9]{4})")):
+        dataDate.append(date)
+
+    # for price in soup.find_all(text=re.compile("^(?:\d*\.[0-9]{3} zł)|(?:\d*\.[0-9]{3},[0-9]{2} zł)")):
+    #     dataPrice.append(price)
 
 def getMetricDataFromLink(url):
     content = urllib2.urlopen(url).read()
@@ -57,40 +63,49 @@ def getAllLinksFromRss(rss):
         links.append(key['link'])
 
 def checkExistLinkInDatabase():
-    for row in MetaData.select():
-        for key in links:
-            if row.links != key:
-                linksNew.append(key)
+    for key in links:
+        exist = MetaData.select().where(MetaData.links == key)
+        if not exist.exists():
+            linksNew.append(key)
+
+
 
 rss = 'http://orzeczenia.piotrkow-tryb.so.gov.pl/rsscontent/15200000'
 
 getAllLinksFromRss(rss);
 checkExistLinkInDatabase()
-
+url = 'http://orzeczenia.krakow.sa.gov.pl/details/Odszkodowanie/152000000000503_I_ACa_000592_2013_Uz_2014-04-17_001'
+getContentDataFromUrl(url)
+# pprint.pprint(dataDate)
+# pprint.pprint(dataArt)
+# pprint.pprint(linksNew)
 # print linksNew
+# i = 0
 
 for linkurl in linksNew:
 
     url = linkurl
-
-
     rssId = 0
 
     getContentDataFromUrl(url)
 
-    for i in Rss.select().where(Rss.link == rss):
-        rssId = i.idrssFeed
+    artDup = list(set(dataArt))
+    dateDup = list(set(dataDate))
+
+    rssId =  Rss.select().where(Rss.link == rss).get()
+
     metric = getMetricDataFromLink(url)
+
     title = ''
-    chairman = ''
     date_of_judgment = ''
     date_publication = ''
     signature = ''
+    judgment_name = ''
     judge = ''
+    faculty = ''
+    chairman = ''
     recorder = ''
     legal_basis = ''
-    faculty = ''
-
 
     for key, val in metric.items():
         if key == "Tytuł:":
@@ -101,8 +116,10 @@ for linkurl in linksNew:
             date_publication = val
         elif key == "Sygnatura:":
             signature = val
-        elif key == "Sąd:":
+        elif key == "Sędziowie:":
             judge = val
+        elif key == "Sąd:":
+            judgement_name = val
         elif key == "Protokolant:":
             recorder = val
         elif key == "Podstawa prawna:":
@@ -112,39 +129,41 @@ for linkurl in linksNew:
         elif key == "Wydział:":
             faculty = val
 
-    # a = list(set(art))
-    #
-    # for tmp in a:
-    #     print tmp
-
     try:
 
         metadata = MetaData.create(
             links = url,
-            name = 'name',
-            date = datetime.datetime.now(),
             rss = rssId
         )
 
         judgmentResult = Judgment(
             title = title,
-            chairman = chairman,
             date_of_judgment = date_of_judgment,
             date_publication = date_publication,
             signature = signature,
+            judgement_name = judgement_name,
+            judges = judge,
+            faculty = faculty,
+            chairman = chairman,
             recorder = recorder,
             legal_basis = legal_basis,
-            metadata = 16,
+            metadata = metadata,
             cities = 3
         )
 
         judgmentResult.save(force_insert=True)
-        # for tmp in art:
-        #     keys = Key.create(
-        #         typ = 'art',
-        #         value = tmp,
-        #         judgment = judgmentResult,
-        #     )
+        for tmpArt in artDup:
+            keys = Key.create(
+                typ = 'art',
+                value = tmpArt,
+                judgment = judgmentResult,
+            )
+        for tmpDate in dateDup:
+            keys = Key.create(
+                typ = 'date',
+                value = tmpDate,
+                judgment = judgmentResult,
+            )
         print 'Wykonało się'
     except:
         raise

@@ -22,9 +22,8 @@ class Cities(MySQLModel):
 
 
 class MetaData(MySQLModel):
-    idmetadata = pw.IntegerField(primary_key=True)
+    # idmetadata = pw.IntegerField(primary_key=True)
     links = pw.CharField()
-    date = pw.CharField()
     rss = pw.ForeignKeyField(Rss)
 
 
@@ -32,11 +31,13 @@ class MetaData(MySQLModel):
 class Judgment(MySQLModel):
     # idjudgment = pw.IntegerField(primary_key=True)
     title = pw.CharField()
-    chairman = pw.CharField()
     date_of_judgment = pw.CharField()
     date_publication = pw.CharField()
     signature = pw.CharField()
+    judgement_name = pw.CharField()
     judges = pw.CharField()
+    faculty = pw.CharField()
+    chairman = pw.CharField()
     recorder = pw.CharField()
     legal_basis = pw.CharField()
     metadata = pw.ForeignKeyField(MetaData)
